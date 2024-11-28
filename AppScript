@@ -1,0 +1,39 @@
+function doGet(e) {
+  var sheet_id = 'ID Spreadsheet'; // ID Spreadsheet
+  var sheet_name = 'Sheet1'; // Nama sheet
+
+  try {
+    var sheet = SpreadsheetApp.openById(sheet_id).getSheetByName(sheet_name);
+    if (!sheet) {
+      return ContentService.createTextOutput('Sheet tidak ditemukan');
+    }
+
+    if (e.parameter.message) {
+      // Jika ada parameter 'message', masukkan ke kolom C2
+      var message = e.parameter.message;
+
+      // Ambil tanggal dan waktu saat ini
+      var currDate = Utilities.formatDate(new Date(), "Asia/Jakarta", "dd/MM/yyyy");
+      var currTime = Utilities.formatDate(new Date(), "Asia/Jakarta", "HH:mm:ss");
+
+      // Tulis data ke Spreadsheet
+      sheet.getRange(2, 1).setValue(currDate); // Tanggal (A2)
+      sheet.getRange(2, 2).setValue(currTime); // Waktu (B2)
+      sheet.getRange(2, 3).setValue(message);  // Input Serial Monitor (C2)
+
+      return ContentService.createTextOutput('Data berhasil ditulis');
+    } else {
+      // Jika tidak ada parameter 'message', baca status LED dari D2
+      var ledStatus = sheet.getRange(2, 4).getValue(); // Nilai D2 (ON/OFF)
+
+      // Pastikan nilai hanya ON atau OFF
+      if (ledStatus === "ON" || ledStatus === "OFF") {
+        return ContentService.createTextOutput(ledStatus); // Kirim status LED
+      } else {
+        return ContentService.createTextOutput('OFF'); // Default OFF jika data tidak valid
+      }
+    }
+  } catch (error) {
+    return ContentService.createTextOutput('Error: ' + error.toString());
+  }
+}
